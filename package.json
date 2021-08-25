@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "rimraf dist && tsc",
-    "test": "rimraf dist; jest --detectOpenHandles --coverage=true --forceExit=true",
+    "test": "rimraf dist; export LOGS_DIRECTORY='test/resources/'; npx jest --detectOpenHandles --coverage=true --forceExit=true",
     "start": "node dist/src/index.js"
   },
   "author": "Maximiliano Plano",
@@ -19,6 +19,7 @@
     "typescript": "^4.3.5"
   },
   "devDependencies": {
+    "@types/jest": "^27.0.1",
     "@types/supertest": "^2.0.11",
     "jest": "^27.0.6",
     "supertest": "^6.1.6",

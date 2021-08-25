@@ -5,16 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "pwa-node",
+            "command": "npm start",
+            "name": "Run npm start",
             "request": "launch",
-            "name": "Launch Program",
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
-            "program": "${file}",
-            "outFiles": [
-                "${workspaceFolder}/**/dist/index.js"
-            ]
-        }
+            "type": "node-terminal",
+            "preLaunchTask": "npm: build"
+        },
+        {
+            "command": "npm test",
+            "name": "Run npm test",
+            "request": "launch",
+            "type": "node-terminal",
+            "preLaunchTask": "npm: build"
+        }        
     ]
 }
