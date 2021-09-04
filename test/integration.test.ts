@@ -1,6 +1,6 @@
 import request from "supertest";
 import server from "../src/index";
-import { generateLog, deleteLog } from "./logsHelper";
+import { generateLog, deleteLog, chmodLog } from "./logsHelper";
 
 describe("Integration Tests", () => {
     let agent: request.SuperAgentTest;
@@ -114,6 +114,17 @@ describe("Integration Tests", () => {
             )
         });
 
+
+        test("it limits filtered results events", async () => {
+            const { text } = await agent
+                .get(`/events`)
+                .query({ file: `fiveLinesLorem.log`, filter: "3", amount: 1 })
+
+            expect(text).toBe(
+                "3 - Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\n"
+            )
+        });
+
         test("it can return from big single lined log", async () => {
             const { text: logText } = await generateLog("./test/resources/32kLinesLorem.log", 1, 32 * 1024)
 
@@ -145,6 +156,19 @@ describe("Integration Tests", () => {
 
             expect(text).toBe(logText)
             await deleteLog("./test/resources/noJumps.log")
+        });
+
+        test("it throws 500 error when file is not accesible", async () => {
+            await chmodLog("./test/resources/fiveLinesLorem.log", "000");
+   
+            const { status, text } = await agent
+                .get(`/events`)
+                .query({ file: `fiveLinesLorem.log` });
+
+            expect(status).toBe(500);
+            expect(text).toBe("server error");
+
+            await chmodLog("./test/resources/fiveLinesLorem.log", "664");
         });
 
         test.skip("master requests data to all children by default", async () => { });

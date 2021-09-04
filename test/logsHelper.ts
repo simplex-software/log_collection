@@ -1,4 +1,4 @@
-import { unlink, open } from 'fs/promises';
+import { unlink, open, chmod } from 'fs/promises';
 import fs from 'fs';
 import path from 'path';
 
@@ -35,5 +35,9 @@ const deleteLog = async (filepath: string): Promise<boolean> => {
   return rm === undefined;
 }
 
-export { generateLog, deleteLog };
+const chmodLog = async (filepath: string, mode: string) => {
+  await chmod(path.resolve(filepath), mode);
+}
+
+export { generateLog, deleteLog, chmodLog };
 
