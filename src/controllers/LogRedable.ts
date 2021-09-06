@@ -86,6 +86,6 @@ export default class LogReadable extends Readable {
   }
 
   private parseLogEvents(chunk: string): string[] {
-    return chunk.replaceAll("\n", "\n\f").split("\f").reverse();
+    return chunk.split("\n").join("\n\f").split("\f").reverse();
   }
 }
