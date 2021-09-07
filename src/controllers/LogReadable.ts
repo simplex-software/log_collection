@@ -1,17 +1,14 @@
-import path from "path";
 import { Readable } from 'stream';
-import { FileHandle, FileReadResult, open, stat } from 'fs/promises';
+import { FileHandle, open, stat } from 'fs/promises';
 
 export default class LogReadable extends Readable {
   private _fd?: FileHandle;
   private _filepath: string;
-  private _eventLimits: number;
   private _position: number;
 
-  constructor(filepath: string, amount: number) {
+  constructor(filepath: string) {
     super();
     this._filepath = filepath;
-    this._eventLimits = amount;
     this._position = 0;
   }
 
@@ -28,10 +25,10 @@ export default class LogReadable extends Readable {
     try {
       const chunk = await this.fetchAChunk(n);
       for (let event of this.parseLogEvents(chunk)) {
-        this.pushEvent(event);
+        this.push(event);
       }
 
-      if (this.hasFinish())
+      if (this._position === 0)
         this.push(null)
     } catch (e) {
       this.destroy(e)
@@ -63,26 +60,8 @@ export default class LogReadable extends Readable {
     return chunk.substr(indexAfterJump + 1);
   }
 
-  private pushEvent(event: string): boolean {
-    if (this._eventLimits == 0) return false;
-
-    this.push(event)
-    this.decreaseLimit()
-    return true;
-  }
-
-  private decreaseLimit() {
-    if (this._eventLimits !== undefined) {
-      this._eventLimits -= this._eventLimits;
-    }
-  }
-
   private hasCompleteLogs(chunk: string): boolean {
     return chunk.includes('\n') || this._position === 0
-  }
-
-  private hasFinish(): boolean {
-    return this._position === 0 || this._eventLimits <= 0
   }
 
   private parseLogEvents(chunk: string): string[] {
